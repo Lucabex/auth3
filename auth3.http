@@ -1,0 +1,6 @@
+@auth3_HostAddress = http://localhost:5293
+
+GET {{auth3_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
