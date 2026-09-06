@@ -4,6 +4,8 @@ using auth3.Models;
 using auth3.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using auth3.Services;
+
 
 namespace auth.Controllers;
 
@@ -12,9 +14,11 @@ namespace auth.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly AppDbContext _context;
-    public AuthController(AppDbContext context)
+    private readonly JwtService _service;
+    public AuthController(AppDbContext context,JwtService service)
     {
         _context=context;
+        _service = service;
     }
     [HttpPost("register")]
     public async Task<IActionResult> RegUser(RegDto dto)
@@ -41,7 +45,18 @@ public class AuthController : ControllerBase
         {
             return BadRequest("User name or password not correct");
         }
-        return Ok("User logged in");
+        var userToken = _service.GenerateToken(user);
+
+        return Ok(new
+        {
+            Message = "User Logged",
+            Token = userToken,
+            User = new
+            {
+                Id = user.Id,
+                Name = user.Name
+            }
+        });
     }
 
 }

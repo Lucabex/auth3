@@ -14,7 +14,7 @@ public class JwtService
     public JwtService(IConfiguration config)
     {
         _config = config;
-        var secretKey = _config["JwtServices:SecretKey"];
+        var secretKey = _config["JwtSettings:SecretKey"];
         _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!));
 
     }
