@@ -2,6 +2,7 @@ using Microsoft.AspNetCore;
 using auth3.Data;
 using auth3.Models;
 using auth3.DTO;
+using auth3.Records;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using auth3.Services;
@@ -15,10 +16,12 @@ public class AuthController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly JwtService _service;
-    public AuthController(AppDbContext context,JwtService service)
+    private readonly IHttpClientFactory _client;
+    public AuthController(AppDbContext context,JwtService service,IHttpClientFactory client)
     {
         _context=context;
         _service = service;
+        _client = client;
     }
     [HttpPost("register")]
     public async Task<IActionResult> RegUser(RegDto dto)
@@ -57,6 +60,24 @@ public class AuthController : ControllerBase
                 Name = user.Name
             }
         });
+    }
+    [HttpGet("daily")]
+    public async Task<IActionResult> GetDailyPuzzle()
+    {
+       try{
+            var client= _client.CreateClient();
+        var url = "https://lichess.org/api/puzzle/daily";
+        var response = await client.GetFromJsonAsync<DailyPuzzle>(url);
+        if(response?.Puzzle.Solution == null || response?.Puzzle.Fen== null)
+        {
+            return StatusCode(503,"Service not available try again later");
+        }
+        return Ok(response);
+        }catch(Exception ex)
+        {
+            return StatusCode(503,"Service not available try again later");
+        }
+        
     }
 
 }
